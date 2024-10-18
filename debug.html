@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>디버거 배우기</title>
+</head>
+
+<body>
+  <div id="count">0</div>
+  <button id="add">더하기 1</button>
+  <script>
+    const countEl = document.getElementById("count");
+    const addBtn = document.getElementById("add");
+    // const count = 0;
+    let count = 0;
+
+    addBtn.addEventListener("click", handleClick);
+
+    function handleClick() {
+      // count = +1;
+      count += 1;
+      countEl.innerHTML = count;
+    }
+  </script>
+</body>
+
+</html>
