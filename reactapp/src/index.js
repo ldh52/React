@@ -9,6 +9,7 @@ import CommentList from './chapter_05/CommentList';
 import NotificationList from './chapter_06/NotificationList';
 import Accommodate from './chapter_07/Accommodate';
 import ConfirmButon from './chapter_08/ConfirmButton';
+import LandingPage from './chapter_09/LandingPage';
 
 
 // chapter_03/Library
@@ -70,5 +71,16 @@ root.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
+
+
+// chapter_09/LandingPage
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <LandingPage />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
 
 reportWebVitals();
