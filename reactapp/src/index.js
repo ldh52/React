@@ -8,6 +8,7 @@ import Clock from './chapter_04/Clock';
 import CommentList from './chapter_05/CommentList';
 import NotificationList from './chapter_06/NotificationList';
 import Accommodate from './chapter_07/Accommodate';
+import ConfirmButon from './chapter_08/ConfirmButton';
 
 
 // chapter_03/Library
@@ -52,10 +53,20 @@ import Accommodate from './chapter_07/Accommodate';
 
 
 // chapter_07/Accommodate
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(
+//   <React.StrictMode>
+//     <Accommodate />
+//   </React.StrictMode>,
+//   document.getElementById('root')
+// );
+
+
+// chapter_08/ConfirmButton
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Accommodate />
+    <ConfirmButon />
   </React.StrictMode>,
   document.getElementById('root')
 );
