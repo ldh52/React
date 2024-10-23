@@ -11,6 +11,7 @@ import Accommodate from './chapter_07/Accommodate';
 import ConfirmButon from './chapter_08/ConfirmButton';
 import LandingPage from './chapter_09/LandingPage';
 import AttendanceBook from './chapter_10/AttendanceBook';
+import SignUp from './chapter_11/SignUp';
 
 
 // chapter_03/Library
@@ -85,12 +86,23 @@ import AttendanceBook from './chapter_10/AttendanceBook';
 
 
 // chapter_10/AttendanceBook
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(
+//   <React.StrictMode>
+//     <AttendanceBook />
+//   </React.StrictMode>,
+//   document.getElementById('root')
+// );
+
+
+chapter_11/SignUp
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AttendanceBook />
+    <SignUp />
   </React.StrictMode>,
   document.getElementById('root')
 );
+
 
 reportWebVitals();
