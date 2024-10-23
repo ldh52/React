@@ -10,6 +10,7 @@ import NotificationList from './chapter_06/NotificationList';
 import Accommodate from './chapter_07/Accommodate';
 import ConfirmButon from './chapter_08/ConfirmButton';
 import LandingPage from './chapter_09/LandingPage';
+import AttendanceBook from './chapter_10/AttendanceBook';
 
 
 // chapter_03/Library
@@ -64,23 +65,32 @@ import LandingPage from './chapter_09/LandingPage';
 
 
 // chapter_08/ConfirmButton
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <ConfirmButon />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(
+//   <React.StrictMode>
+//     <ConfirmButon />
+//   </React.StrictMode>,
+//   document.getElementById('root')
+// );
 
 
 // chapter_09/LandingPage
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(
+//   <React.StrictMode>
+//     <LandingPage />
+//   </React.StrictMode>,
+//   document.getElementById('root')
+// );
+
+
+// chapter_10/AttendanceBook
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <LandingPage />
+    <AttendanceBook />
   </React.StrictMode>,
   document.getElementById('root')
 );
-
 
 reportWebVitals();
