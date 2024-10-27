@@ -1,37 +1,35 @@
-import "./FoodList.css";
+import { useState } from "react";
+import { getFoods } from "../api";
+import FoodList from "./FoodList";
 
-function formatDate(value) {
-  const date = new Date(value);
-  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
-}
+function App() {
+  const [order, setOrder] = useState("createdAt");
+  const [items, setItems] = useState([]);
 
-function FoodListItem({ item, onDelete }) {
-  const { imgUrl, title, calorie, content, createdAt } = item;
+  const handleNewestClick = () => setOrder("createdAt");
 
-  const handleDeleteClick = () => onDelete(item.id);
+  const handleCalorieClick = () => setOrder("calorie");
+
+  const handleDelete = (id) => {
+    const nextItems = items.filter((item) => item.id !== id);
+    setItems(nextItems);
+  };
+
+  const handleLoadClick = async () => {
+    const { foods } = await getFoods();
+    setItems(foods);
+  };
+
+  const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
   return (
-    <div className="FoodListItem">
-      <img src={imgUrl} alt={title} />
-      <div>{title}</div>
-      <div>{calorie}</div>
-      <div>{content}</div>
-      <div>{formatDate(createdAt)}</div>
-      <button onClick={handleDeleteClick}>삭제</button>
+    <div>
+      <button onClick={handleNewestClick}>최신순</button>
+      <button onClick={handleCalorieClick}>칼로리순</button>
+      <FoodList items={sortedItems} onDelete={handleDelete} />
+      <button onClick={handleLoadClick}>불러오기</button>
     </div>
   );
 }
 
-function FoodList({ items, onDelete }) {
-  return (
-    <ul className="FoodList">
-      {items.map((item) => (
-        <li>
-          <FoodListItem item={item} onDelete={onDelete} />
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export default FoodList;
+export default App;
