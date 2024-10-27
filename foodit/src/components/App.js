@@ -1,23 +1,37 @@
-import { useState } from "react";
-import FoodList from "./FoodList";
-import items from "../mock.json";
+import "./FoodList.css";
 
-function App() {
-  const [order, setOrder] = useState("createdAt");
+function formatDate(value) {
+  const date = new Date(value);
+  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
+}
 
-  const handleNewestClick = () => setOrder("createdAt");
+function FoodListItem({ item, onDelete }) {
+  const { imgUrl, title, calorie, content, createdAt } = item;
 
-  const handleCalorieClick = () => setOrder("calorie");
-
-  const sortedItems = items.sort((a, b) => b[order] - a[order]);
+  const handleDeleteClick = () => onDelete(item.id);
 
   return (
-    <div>
-      <button onClick={handleNewestClick}>최신순</button>
-      <button onClick={handleCalorieClick}>칼로리순</button>
-      <FoodList items={sortedItems} />
+    <div className="FoodListItem">
+      <img src={imgUrl} alt={title} />
+      <div>{title}</div>
+      <div>{calorie}</div>
+      <div>{content}</div>
+      <div>{formatDate(createdAt)}</div>
+      <button onClick={handleDeleteClick}>삭제</button>
     </div>
   );
 }
 
-export default App;
+function FoodList({ items, onDelete }) {
+  return (
+    <ul className="FoodList">
+      {items.map((item) => (
+        <li>
+          <FoodListItem item={item} onDelete={onDelete} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default FoodList;
