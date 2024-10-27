@@ -35,3 +35,4 @@ function FoodList({ items, onDelete }) {
 }
 
 export default FoodList;
+
