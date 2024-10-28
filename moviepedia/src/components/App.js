@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
-import ReviewList from "./ReviewList";
-import { getReviews } from "../api";
+import { useEffect, useState } from 'react';
+import ReviewList from './ReviewList';
+import { getReviews } from '../api';
 
 const LIMIT = 6;
 
 function App() {
-  const [order, setOrder] = useState("createdAt");
+  const [order, setOrder] = useState('createdAt');
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [items, setItems] = useState([]);
   const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
-  const handleNewestClick = () => setOrder("createdAt");
+  const handleNewestClick = () => setOrder('createdAt');
 
-  const handleBestClick = () => setOrder("rating");
+  const handleBestClick = () => setOrder('rating');
 
   const handleDelete = (id) => {
     const nextItems = items.filter((item) => item.id !== id);
@@ -21,7 +22,18 @@ function App() {
   };
 
   const handleLoad = async (options) => {
-    const { paging, reviews } = await getReviews(options);
+    let result;
+    try {
+      setIsLoading(true);
+      result = await getReviews(options);
+    } catch (error) {
+      console.error(error);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+
+    const { paging, reviews } = result;
     if (options.offset === 0) {
       setItems(reviews);
     } else {
@@ -46,7 +58,11 @@ function App() {
         <button onClick={handleBestClick}>베스트순</button>
       </div>
       <ReviewList items={sortedItems} onDelete={handleDelete} />
-      {hasNext && <button onClick={handleLoadMore}>더 보기</button>}
+      {hasNext && (
+        <button disabled={isLoading} onClick={handleLoadMore}>
+          더 보기
+        </button>
+      )}
     </div>
   );
 }
