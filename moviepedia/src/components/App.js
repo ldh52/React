@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
-import ReviewList from './ReviewList';
-import { getReviews } from '../api';
+import { useEffect, useState } from "react";
+import ReviewList from "./ReviewList";
+import { getReviews } from "../api";
 
 const LIMIT = 6;
 
 function App() {
-  const [order, setOrder] = useState('createdAt');
+  const [order, setOrder] = useState("createdAt");
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState(null);
   const [items, setItems] = useState([]);
   const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
-  const handleNewestClick = () => setOrder('createdAt');
+  const handleNewestClick = () => setOrder("createdAt");
 
-  const handleBestClick = () => setOrder('rating');
+  const handleBestClick = () => setOrder("rating");
 
   const handleDelete = (id) => {
     const nextItems = items.filter((item) => item.id !== id);
@@ -24,10 +25,11 @@ function App() {
   const handleLoad = async (options) => {
     let result;
     try {
+      setLoadingError(null);
       setIsLoading(true);
       result = await getReviews(options);
     } catch (error) {
-      console.error(error);
+      setLoadingError(error);
       return;
     } finally {
       setIsLoading(false);
@@ -63,6 +65,7 @@ function App() {
           더 보기
         </button>
       )}
+      {loadingError?.message && <span>{loadingError.message}</span>}
     </div>
   );
 }
