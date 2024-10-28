@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import ReviewList from './ReviewList';
-import ReviewForm from './ReviewForm';
-import { getReviews } from '../api';
+import { useEffect, useState } from "react";
+import ReviewList from "./ReviewList";
+import ReviewForm from "./ReviewForm";
+import { getReviews } from "../api";
 
 const LIMIT = 6;
 
 function App() {
-  const [order, setOrder] = useState('createdAt');
+  const [order, setOrder] = useState("createdAt");
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,9 +14,9 @@ function App() {
   const [items, setItems] = useState([]);
   const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
-  const handleNewestClick = () => setOrder('createdAt');
+  const handleNewestClick = () => setOrder("createdAt");
 
-  const handleBestClick = () => setOrder('rating');
+  const handleBestClick = () => setOrder("rating");
 
   const handleDelete = (id) => {
     const nextItems = items.filter((item) => item.id !== id);
@@ -50,6 +50,10 @@ function App() {
     await handleLoad({ order, offset, limit: LIMIT });
   };
 
+  const handleSubmitSuccess = (review) => {
+    setItems((prevItems) => [review, ...prevItems]);
+  };
+
   useEffect(() => {
     handleLoad({ order, offset: 0, limit: LIMIT });
   }, [order]);
@@ -60,7 +64,7 @@ function App() {
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleBestClick}>베스트순</button>
       </div>
-      <ReviewForm />
+      <ReviewForm onSubmitSuccess={handleSubmitSuccess} />
       <ReviewList items={sortedItems} onDelete={handleDelete} />
       {hasNext && (
         <button disabled={isLoading} onClick={handleLoadMore}>
