@@ -1,54 +1,27 @@
-import { useState } from "react";
-import FileInput from "./FileInput";
-import "./ReviewForm.css";
+const BASE_URL = "https://learn.codeit.kr/api";
 
-function ReviewForm() {
-  const [values, setValues] = useState({
-    title: "",
-    rating: 0,
-    content: "",
-    imgFile: null,
-  });
-
-  const handleChange = (name, value) => {
-    setValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    handleChange(name, value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(values);
-  };
-
-  return (
-    <form className="ReviewForm" onSubmit={handleSubmit}>
-      <FileInput
-        name="imgFile"
-        value={values.imgFile}
-        onChange={handleChange}
-      />
-      <input name="title" value={values.title} onChange={handleInputChange} />
-      <input
-        type="number"
-        name="rating"
-        value={values.rating}
-        onChange={handleInputChange}
-      />
-      <textarea
-        name="content"
-        value={values.content}
-        onChange={handleInputChange}
-      />
-      <button type="submit">확인</button>
-    </form>
-  );
+export async function getReviews({
+  order = "createdAt",
+  offset = 0,
+  limit = 6,
+}) {
+  const query = `order=${order}&offset=${offset}&limit=${limit}`;
+  const response = await fetch(`${BASE_URL}/film-reviews?${query}`);
+  if (!response.ok) {
+    throw new Error("리뷰를 불러오는데 실패했습니다");
+  }
+  const body = await response.json();
+  return body;
 }
 
-export default ReviewForm;
+export async function createReview(formData) {
+  const response = await fetch(`${BASE_URL}/film-reviews`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error("리뷰를 생성하는데 실패했습니다.");
+  }
+  const body = await response.json();
+  return body;
+}
