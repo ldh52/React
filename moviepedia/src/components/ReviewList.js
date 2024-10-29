@@ -1,42 +1,45 @@
-import Rating from "./Rating";
-import "./ReviewList.css";
+import { useEffect, useRef, useState } from "react";
 
-function formatDate(value) {
-  const date = new Date(value);
-  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
-}
+function FileInput({ name, value, initialPreview, onChange }) {
+  const [preview, setPreview] = useState(initialPreview);
+  const inputRef = useRef();
 
-function ReviewListItem({ item, onDelete }) {
-  const handleDeleteClick = () => {
-    onDelete(item.id);
+  const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
   };
 
+  const handleClearClick = () => {
+    const inputNode = inputRef.current;
+    if (!inputNode) return;
+
+    inputNode.value = "";
+    onChange(name, null);
+  };
+
+  useEffect(() => {
+    if (!value) return;
+    const nextPreview = URL.createObjectURL(value);
+    setPreview(nextPreview);
+
+    return () => {
+      setPreview(initialPreview);
+      URL.revokeObjectURL(nextPreview);
+    };
+  }, [value, initialPreview]);
+
   return (
-    <div className="ReviewListItem">
-      <img className="ReviewListItem-img" src={item.imgUrl} alt={item.title} />
-      <div>
-        <h1>{item.title}</h1>
-        <Rating value={item.rating} />
-        <p>{formatDate(item.createdAt)}</p>
-        <p>{item.content}</p>
-        <button onClick={handleDeleteClick}>삭제</button>
-      </div>
+    <div>
+      <img src={preview} alt="이미지 미리보기" />
+      <input
+        type="file"
+        accept="image/png, image/jpeg"
+        onChange={handleChange}
+        ref={inputRef}
+      />
+      {value && <button onClick={handleClearClick}>X</button>}
     </div>
   );
 }
 
-function ReviewList({ items, onDelete }) {
-  return (
-    <ul>
-      {items.map((item) => {
-        return (
-          <li key={item.id}>
-            <ReviewListItem item={item} onDelete={onDelete} />
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-export default ReviewList;
+export default FileInput;
