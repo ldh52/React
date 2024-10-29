@@ -1,45 +1,70 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import Rating from "./Rating";
+import ReviewForm from "./ReviewForm";
+import "./ReviewList.css";
 
-function FileInput({ name, value, initialPreview, onChange }) {
-  const [preview, setPreview] = useState(initialPreview);
-  const inputRef = useRef();
+function formatDate(value) {
+  const date = new Date(value);
+  return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
+}
 
-  const handleChange = (e) => {
-    const nextValue = e.target.files[0];
-    onChange(name, nextValue);
+function ReviewListItem({ item, onDelete, onEdit }) {
+  const handleDeleteClick = () => {
+    onDelete(item.id);
   };
 
-  const handleClearClick = () => {
-    const inputNode = inputRef.current;
-    if (!inputNode) return;
-
-    inputNode.value = "";
-    onChange(name, null);
+  const handleEditClick = () => {
+    onEdit(item.id);
   };
-
-  useEffect(() => {
-    if (!value) return;
-    const nextPreview = URL.createObjectURL(value);
-    setPreview(nextPreview);
-
-    return () => {
-      setPreview(initialPreview);
-      URL.revokeObjectURL(nextPreview);
-    };
-  }, [value, initialPreview]);
 
   return (
-    <div>
-      <img src={preview} alt="이미지 미리보기" />
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
-        onChange={handleChange}
-        ref={inputRef}
-      />
-      {value && <button onClick={handleClearClick}>X</button>}
+    <div className="ReviewListItem">
+      <img className="ReviewListItem-img" src={item.imgUrl} alt={item.title} />
+      <div>
+        <h1>{item.title}</h1>
+        <Rating value={item.rating} />
+        <p>{formatDate(item.createdAt)}</p>
+        <p>{item.content}</p>
+        <button onClick={handleEditClick}>수정</button>
+        <button onClick={handleDeleteClick}>삭제</button>
+      </div>
     </div>
   );
 }
 
-export default FileInput;
+function ReviewList({ items, onDelete }) {
+  const [editingId, setEditingId] = useState(null);
+
+  const handleCancel = () => setEditingId(null);
+
+  return (
+    <ul>
+      {items.map((item) => {
+        if (item.id === editingId) {
+          const { imgUrl, title, rating, content } = item;
+          const initialValues = { title, rating, content, imgFile: null };
+          return (
+            <li key={item.id}>
+              <ReviewForm
+                initialValues={initialValues}
+                initialPreview={imgUrl}
+                onCancel={handleCancel}
+              />
+            </li>
+          );
+        }
+        return (
+          <li key={item.id}>
+            <ReviewListItem
+              item={item}
+              onDelete={onDelete}
+              onEdit={setEditingId}
+            />
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export default ReviewList;
