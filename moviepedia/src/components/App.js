@@ -1,50 +1,64 @@
-import { useEffect, useState } from "react";
-import ReviewList from "./ReviewList";
-import ReviewForm from "./ReviewForm";
-import { createReview, getReviews, updateReview } from "../api";
+import { useCallback, useEffect, useState } from 'react';
+import ReviewList from './ReviewList';
+import ReviewForm from './ReviewForm';
+import { createReview, deleteReview, getReviews, updateReview } from '../api';
+import useAsync from '../hooks/useAsync';
+import LocaleSelect from './LocaleSelect';
+import './App.css';
+import logoImg from '../assets/logo.png';
+import ticketImg from '../assets/ticket.png';
+import useTranslate from '../hooks/useTranslate';
 
 const LIMIT = 6;
 
+function AppSortButton({ selected, children, onClick }) {
+  return (
+    <button
+      disabled={selected}
+      className={`AppSortButton ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 function App() {
-  const [order, setOrder] = useState("createdAt");
+  const t = useTranslate();
+  const [order, setOrder] = useState('createdAt');
   const [offset, setOffset] = useState(0);
   const [hasNext, setHasNext] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingError, setLoadingError] = useState(null);
+  const [isLoading, loadingError, getReviewsAsync] = useAsync(getReviews);
   const [items, setItems] = useState([]);
   const sortedItems = items.sort((a, b) => b[order] - a[order]);
 
-  const handleNewestClick = () => setOrder("createdAt");
+  const handleNewestClick = () => setOrder('createdAt');
 
-  const handleBestClick = () => setOrder("rating");
+  const handleBestClick = () => setOrder('rating');
 
-  const handleDelete = (id) => {
-    const nextItems = items.filter((item) => item.id !== id);
-    setItems(nextItems);
+  const handleDelete = async (id) => {
+    const result = await deleteReview(id);
+    if (!result) return;
+
+    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  const handleLoad = async (options) => {
-    let result;
-    try {
-      setLoadingError(null);
-      setIsLoading(true);
-      result = await getReviews(options);
-    } catch (error) {
-      setLoadingError(error);
-      return;
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLoad = useCallback(
+    async (options) => {
+      const result = await getReviewsAsync(options);
+      if (!result) return;
 
-    const { paging, reviews } = result;
-    if (options.offset === 0) {
-      setItems(reviews);
-    } else {
-      setItems((prevItems) => [...prevItems, ...reviews]);
-    }
-    setOffset(options.offset + options.limit);
-    setHasNext(paging.hasNext);
-  };
+      const { paging, reviews } = result;
+      if (options.offset === 0) {
+        setItems(reviews);
+      } else {
+        setItems((prevItems) => [...prevItems, ...reviews]);
+      }
+      setOffset(options.offset + options.limit);
+      setHasNext(paging.hasNext);
+    },
+    [getReviewsAsync]
+  );
 
   const handleLoadMore = async () => {
     await handleLoad({ order, offset, limit: LIMIT });
@@ -67,30 +81,68 @@ function App() {
 
   useEffect(() => {
     handleLoad({ order, offset: 0, limit: LIMIT });
-  }, [order]);
+  }, [order, handleLoad]);
 
   return (
-    <div>
-      <div>
-        <button onClick={handleNewestClick}>최신순</button>
-        <button onClick={handleBestClick}>베스트순</button>
+    <div className="App">
+      <nav className="App-nav">
+        <div className="App-nav-container">
+          <img className="App-logo" src={logoImg} alt="MOVIDE PEDIA" />
+          <LocaleSelect />
+        </div>
+      </nav>
+      <div className="App-container">
+        <div
+          className="App-ReviewForm"
+          style={{
+            backgroundImage: `url("${ticketImg}")`,
+          }}
+        >
+          <ReviewForm
+            onSubmit={createReview}
+            onSubmitSuccess={handleCreateSuccess}
+          />
+        </div>
+        <div className="App-sorts">
+          <AppSortButton
+            selected={order === 'createdAt'}
+            onClick={handleNewestClick}
+          >
+            {t('newest')}
+          </AppSortButton>
+          <AppSortButton
+            selected={order === 'rating'}
+            onClick={handleBestClick}
+          >
+            {t('best')}
+          </AppSortButton>
+        </div>
+        <div className="App-ReviewList">
+          <ReviewList
+            items={sortedItems}
+            onDelete={handleDelete}
+            onUpdate={updateReview}
+            onUpdateSuccess={handleUpdateSuccess}
+          />
+          {hasNext ? (
+            <button
+              className="App-load-more-button"
+              disabled={isLoading}
+              onClick={handleLoadMore}
+            >
+              {t('load more')}
+            </button>
+          ) : (
+            <div className="App-load-more-button" />
+          )}
+          {loadingError?.message && <span>{loadingError.message}</span>}
+        </div>
       </div>
-      <ReviewForm
-        onSubmit={createReview}
-        onSubmitSuccess={handleCreateSuccess}
-      />
-      <ReviewList
-        items={sortedItems}
-        onItemDelete={handleDelete}
-        onUpdate={updateReview}
-        onUpdateSuccess={handleUpdateSuccess}
-      />
-      {hasNext && (
-        <button disabled={isLoading} onClick={handleLoadMore}>
-          더 보기
-        </button>
-      )}
-      {loadingError?.message && <span>{loadingError.message}</span>}
+      <footer className="App-footer">
+        <div className="App-footer-container">
+          {t('terms of service')} | {t('privacy policy')}
+        </div>
+      </footer>
     </div>
   );
 }
