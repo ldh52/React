@@ -1,45 +1,87 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { createReview } from "../api";
+import FileInput from "./FileInput";
+import RatingInput from "./RatingInput";
+import "./ReviewForm.css";
 
-function FileInput({ name, value, initialPreview, onChange }) {
-  const [preview, setPreview] = useState(initialPreview);
-  const inputRef = useRef();
+const INITIAL_VALUES = {
+  title: "",
+  rating: 0,
+  content: "",
+  imgFile: null,
+};
 
-  const handleChange = (e) => {
-    const nextValue = e.target.files[0];
-    onChange(name, nextValue);
+function ReviewForm({
+  initialValues = INITIAL_VALUES,
+  initialPreview,
+  onCancel,
+  onSubmitSuccess,
+}) {
+  const [values, setValues] = useState(initialValues);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingError, setSubmittingError] = useState(null);
+
+  const handleChange = (name, value) => {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
   };
 
-  const handleClearClick = () => {
-    const inputNode = inputRef.current;
-    if (!inputNode) return;
-
-    inputNode.value = "";
-    onChange(name, null);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    handleChange(name, value);
   };
 
-  useEffect(() => {
-    if (!value) return;
-    const nextPreview = URL.createObjectURL(value);
-    setPreview(nextPreview);
-
-    return () => {
-      setPreview(initialPreview);
-      URL.revokeObjectURL(nextPreview);
-    };
-  }, [value, initialPreview]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("rating", values.rating);
+    formData.append("content", values.content);
+    formData.append("imgFile", values.imgFile);
+    let result;
+    try {
+      setSubmittingError(null);
+      setIsSubmitting(true);
+      result = await createReview(formData);
+    } catch (error) {
+      setSubmittingError(error);
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
+    const { review } = result;
+    setValues(INITIAL_VALUES);
+    onSubmitSuccess(review);
+  };
 
   return (
-    <div>
-      <img src={preview} alt="이미지 미리보기" />
-      <input
-        type="file"
-        accept="image/png, image/jpeg"
+    <form className="ReviewForm" onSubmit={handleSubmit}>
+      <FileInput
+        name="imgFile"
+        value={values.imgFile}
+        initialPreview={initialPreview}
         onChange={handleChange}
-        ref={inputRef}
       />
-      {value && <button onClick={handleClearClick}>X</button>}
-    </div>
+      <input name="title" value={values.title} onChange={handleInputChange} />
+      <RatingInput
+        name="rating"
+        value={values.rating}
+        onChange={handleChange}
+      />
+      <textarea
+        name="content"
+        value={values.content}
+        onChange={handleInputChange}
+      />
+      {onCancel && <button onClick={onCancel}>취소</button>}
+      <button disabled={isSubmitting} type="submit">
+        확인
+      </button>
+      {submittingError && <div>{submittingError.message}</div>}
+    </form>
   );
 }
 
-export default FileInput;
+export default ReviewForm;
